@@ -1,0 +1,107 @@
+﻿@page "/users/create"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity
+@using SIMS.Data
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create User</PageTitle>
+
+<h1>Create</h1>
+
+<p>
+	<a href="users">Back to List</a>
+</p>
+
+<EditForm Model="Input" OnInvalidSubmit="CreateUser" FormName="create-user" method="post">
+	<DataAnnotationsValidator />
+	<ValidationSummary class="text-danger" />
+	<div>
+		<lable>Email</lable>
+		<InputText @bind-Value="Input.Email" />
+		<ValidationMessage For="() => Input.Email" />
+	</div>
+	<div>
+		<lable>Password</lable>
+		<InputText type="password" @bind-Value="Input.Password" />
+		<ValidationMessage For="() => Input.Password" />
+	</div>
+
+	<div>
+		<label>Name</label>
+		<InputText @bind-Value="Input.Name" />
+	</div>
+	
+	<div>
+		<label>Code</label>
+		<InputText @bind-Value="Input.Code" />
+	</div>
+
+	<div>
+		<label>Address</label>
+		<InputText @bind-Value="Input.Address" />
+	</div>
+
+	<div>
+		<label>Role</label>
+		<InputSelect @bind-Value="Input.Role">
+			@foreach (var r in Roles)
+			{
+				<option value="@r">@r</option>
+			}
+		</InputSelect>
+	</div>
+
+
+	<p>
+		<button type="submit">Create</button>
+		<a href="/users">Cancel</a>
+	</p>
+
+</EditForm>
+
+
+@code {
+	[SupplyParameterFromForm]
+	private CreateInput Input { get; set; } = new();
+	private sealed class CreateInput
+	{
+		[Required]
+		[EmailAddress]
+		public string Email { get; set; } = "";
+		[Required]
+		public string Password { get; set; } = "";
+		public string Name { get; set; } = "";
+		[Required]
+		public string Code { get; set; } = "";
+		[Required]
+		public string Role { get; set; } = "";
+		public string Address { get; set; } = "";
+	}
+
+	private List<string> Roles { get; set; } = new();
+	protected override async Task OnInitializedAsync()
+	{
+		Roles = await RoleManager.Roles.Select(r => r.Name ?? "").ToListAsync();
+	}
+	private async Task CreateUser()
+	{
+		var user = new ApplicationUser {UserName = Input.Email,
+			Email = Input.Email,
+			Name = Input.Name,
+			Code = Input.Code,};
+		var result = await UserManager.CreateAsync(user, Input.Password);
+	
+		if (!result.Succeeded)
+		{
+			return;
+		}
+		await UserManager.AddToRoleAsync(user, Input.Role);
+		NavigationManager.NavigateTo("users" );
+	}
+	
+
+
+}

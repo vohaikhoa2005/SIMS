@@ -1,0 +1,59 @@
+﻿@page "/users"
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.AspNetCore.Identity
+@using SIMS.Data
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavigationManager
+
+<h1>Index</h1>
+<P>
+	<a href="users/create">Create New</a>
+</P>
+
+<QuickGrid Class="table" Items="Users.AsQueryable()">
+	<PropertyColumn Title="Email" Property="u => u.Email" />
+	<PropertyColumn Title="Name" Property="u => u.Name" />
+	<PropertyColumn Title="Code" Property="u => u.Code" />
+	<PropertyColumn Title="Roles" Property="u => u.Roles" />
+
+	<TemplateColumn Context="user">
+		<a href=@($"user/edit?id/={user.Id}")>Edit</a> |
+		<a href=@($"user/details?id/={user.Id}")>Details</a> |
+		<a href=@($"user/delete?id/={user.Id}")>Delete</a>
+	</TemplateColumn>
+
+</QuickGrid>
+
+@code {
+	private List<UserRow> Users { get; set; } = new();
+	private sealed class UserRow
+	{
+		public string Id { get; set; } = "";
+		public string Email { get; set; } = "";
+		public string Name { get; set; } = "";
+		public string Code { get; set; } = "";
+		public string Roles { get; set; } = "";
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		var allUsers = await UserManager.Users.ToListAsync();
+		Users = new List<UserRow>(allUsers.Count);
+		foreach (var u in allUsers)
+		{
+			var roles = await UserManager.GetRolesAsync(u);
+			Users.Add(new UserRow
+			{
+				Id = u.Id,
+				Email = u.Email ?? "",
+				Name = u.Name ?? "",
+				Code = u.Code ?? "",
+				Roles = string.Join(", ", roles)
+			});
+		}
+	}
+
+
+}
