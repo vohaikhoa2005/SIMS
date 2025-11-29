@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SIMS.Data;
+using System.Collections.Generic;
 
 namespace SIMS.Data
 {
@@ -11,5 +12,7 @@ namespace SIMS.Data
         public DbSet<Subject> Subjects { get; set; } = null!;
         public DbSet<Major> Majors { get; set; } = null!;
         public DbSet<Course> Courses { get; set; } = null!;
+        public DbSet<Enrollment> Enrollments { get; set; } = null!;
+
     }
 }
