@@ -38,8 +38,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="studentIds" class="form-label">Students:</label>
-                    <select id="studentIds" class="form-control" multiple style="width: 100%;"></select>
+                    <label for="Codes" class="form-label">Students:</label>
+                    <select id="Codes" class="form-control" multiple style="width: 100%;"></select>
                     <small class="form-text text-muted">Search and select students to assign to this course</small>
                 </div>
 
@@ -53,7 +53,7 @@
                                 @foreach (var student in EnrolledStudents)
                                 {
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>@student.Student.Name (@student.Student.StudentId) - @student.Student.Email</span>
+                                        <span>@student.Student.Name? (@student.Student.Code?) - @student.Student.Email?</span>
                                         <button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoveEnrollment(student.Id)">
                                             <i class="bi bi-trash"></i> Remove
                                         </button>
@@ -114,7 +114,7 @@
         {
             try
             {
-                var elementExists = await JSRuntime.InvokeAsync<bool>("eval", "$('#studentIds').length > 0 && !$('#studentIds').hasClass('select2-hidden-accessible')");
+                var elementExists = await JSRuntime.InvokeAsync<bool>("eval", "$('#Codes').length > 0 && !$('#Codes').hasClass('select2-hidden-accessible')");
                 if (elementExists)
                 {
                     await InitializeSelect2();
@@ -167,26 +167,26 @@
 
         try
         {
-            var selectedStudentIds = await JSRuntime.InvokeAsync<string[]>("getSelectedStudents");
+            var selectedCodes = await JSRuntime.InvokeAsync<string[]>("getSelectedStudents");
 
-            if (selectedStudentIds == null || selectedStudentIds.Length == 0)
+            if (selectedCodes == null || selectedCodes.Length == 0)
             {
                 return;
             }
 
             using var context = DbFactory.CreateDbContext();
             var existingEnrollments = await context.Enrollments
-                .Where(e => e.CourseId == SelectedCourseId && selectedStudentIds.Contains(e.StudentId))
+                .Where(e => e.CourseId == SelectedCourseId && selectedCodes.Contains(e.StudentId))
                 .Select(e => e.StudentId)
                 .ToListAsync();
 
-            var newStudentIds = selectedStudentIds.Except(existingEnrollments).ToList();
+            var newCodes = selectedCodes.Except(existingEnrollments).ToList();
 
-            foreach (var studentId in newStudentIds)
+            foreach (var Code in newCodes)
             {
                 context.Enrollments.Add(new Enrollment
                 {
-                    StudentId = studentId,
+                    StudentId = Code,
                     CourseId = SelectedCourseId
                 });
             }

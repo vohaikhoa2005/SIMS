@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SIMS.Components;
 using SIMS.Components.Account;
 using SIMS.Data;
+using SIMS.Endpoints;
 
 namespace SIMS
 {
@@ -85,6 +86,8 @@ namespace SIMS
 
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
+
+            app.MapStudentEndpoints();
 
             // Add additional endpoints required by the Identity /Account Razor components.
             app.MapAdditionalIdentityEndpoints();

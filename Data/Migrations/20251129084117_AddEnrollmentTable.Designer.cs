@@ -12,7 +12,7 @@ using SIMS.Data;
 namespace SIMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251129065052_AddEnrollmentTable")]
+    [Migration("20251129084117_AddEnrollmentTable")]
     partial class AddEnrollmentTable
     {
         /// <inheritdoc />
@@ -290,6 +290,30 @@ namespace SIMS.Migrations
                     b.ToTable("Departments");
                 });
 
+            modelBuilder.Entity("SIMS.Data.Enrollment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Enrollments");
+                });
+
             modelBuilder.Entity("SIMS.Data.Major", b =>
                 {
                     b.Property<int>("Id")
@@ -426,6 +450,25 @@ namespace SIMS.Migrations
                     b.Navigation("Semester");
 
                     b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("SIMS.Data.Enrollment", b =>
+                {
+                    b.HasOne("SIMS.Data.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SIMS.Data.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("SIMS.Data.Major", b =>
